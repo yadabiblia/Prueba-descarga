@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YADA BIBLIA & Devocional Diario</title>
+    <title>pruebadescarga</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
@@ -743,7 +743,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGICA UNIFICADA Y DESCARGA DE IMAGEN CORREGIDA -->
+    <!-- SCRIPT LOGICA UNIFICADA Y DESCARGA DE IMAGEN COMPATIBLE -->
     <script>
         const LIBROS_BIBLIA = [
           { id: 'GEN', nombre: 'Génesis', testamento: 'AT', archivo: 'Genesis.txt', caps: 50 },
@@ -1267,7 +1267,7 @@
           document.getElementById('modalAvances').classList.remove('oculto');
         }
 
-        /* --- DEVOCIONAL, PDF Y DESCARGA DE IMAGEN SEGURO --- */
+        /* --- DEVOCIONAL, PDF Y DESCARGA DE IMAGEN CORREGIDA --- */
         function addKeyWordRow(word = '', meaning = '') {
             keyWordCount++;
             const container = document.getElementById('keywords-container');
@@ -1326,7 +1326,16 @@
 
         function downloadPDF() {
             updatePreviewDocument();
-            const element = document.getElementById('pdf-container');
+            const element = document.getElementById('doc-page-1');
+            
+            // Clonar para asegurar visibilidad en pantalla
+            const clone = element.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.left = '-9999px';
+            clone.style.top = '0px';
+            clone.style.width = '210mm';
+            document.body.appendChild(clone);
+
             const opt = { 
                 margin: [10, 10, 10, 10], 
                 filename: `Devocional_${document.getElementById('input-libro').value}_${document.getElementById('input-capitulo').value}.pdf`, 
@@ -1334,46 +1343,65 @@
                 html2canvas: { scale: 2, useCORS: true }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
             };
-            html2pdf().set(opt).from(element).save();
+
+            html2pdf().set(opt).from(clone).save().then(() => {
+                document.body.removeChild(clone);
+            }).catch(err => {
+                document.body.removeChild(clone);
+                console.error("Error al generar PDF:", err);
+            });
         }
 
         async function downloadImage() {
             updatePreviewDocument();
-            const element = document.getElementById('doc-page-1');
+            const original = document.getElementById('doc-page-1');
             
             if (typeof html2canvas === 'undefined') {
                 alert('Cargando módulo de imagen, por favor intenta de nuevo en unos segundos.');
                 return;
             }
 
+            // Clonar el nodo y renderizarlo fuera de pantalla (soluciona visibilidad en 'view-form')
+            const clone = original.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.left = '-9999px';
+            clone.style.top = '0px';
+            clone.style.width = '210mm';
+            document.body.appendChild(clone);
+
             try {
-                const canvas = await html2canvas(element, { 
+                const canvas = await html2canvas(clone, { 
                     scale: 2, 
                     useCORS: true, 
+                    allowTaint: true,
                     backgroundColor: '#FFFFFF' 
                 });
                 
+                document.body.removeChild(clone);
+
                 const nombreArchivo = `Devocional_${document.getElementById('input-libro').value || 'Biblia'}_${document.getElementById('input-capitulo').value || '1'}.png`;
+                const dataUrl = canvas.toDataURL('image/png');
                 
-                canvas.toBlob((blob) => {
-                    if (!blob) {
-                        alert('No se pudo generar el archivo de imagen.');
-                        return;
-                    }
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = nombreArchivo;
-                    document.body.appendChild(a);
-                    a.click();
-                    
-                    setTimeout(() => {
-                        document.body.removeChild(a);
-                        URL.revokeObjectURL(url);
-                    }, 200);
-                }, 'image/png');
+                // Convertir Data URL a Blob de forma segura con fetch
+                const res = await fetch(dataUrl);
+                const blob = await res.blob();
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = nombreArchivo;
+                document.body.appendChild(a);
+                a.click();
+                
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 300);
 
             } catch (err) {
+                if (document.body.contains(clone)) {
+                    document.body.removeChild(clone);
+                }
                 console.error("Error al generar la imagen:", err);
                 alert("No se pudo generar la imagen.");
             }
