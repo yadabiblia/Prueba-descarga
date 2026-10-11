@@ -743,7 +743,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGICA UNIFICADA Y SOPORTE DE IMAGEN OPTIMIZADO -->
+    <!-- SCRIPT LOGICA UNIFICADA Y SOPORTE DE IMAGEN -->
     <script>
         const LIBROS_BIBLIA = [
           { id: 'GEN', nombre: 'Génesis', testamento: 'AT', archivo: 'Genesis.txt', caps: 50 },
@@ -1342,35 +1342,17 @@
             const element = document.getElementById('doc-page-1');
             
             if (typeof html2canvas === 'undefined') {
-                alert('La librería para generar imágenes no se ha cargado.');
+                alert('La librería para generar imágenes no se ha cargado completamente.');
                 return;
             }
 
             html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
-                const dataUrl = canvas.toDataURL('image/png');
-                
-                // Abrir la imagen en una nueva pestaña (Ideal para celulares donde la descarga directa falla)
-                const nuevaVentana = window.open();
-                if (nuevaVentana) {
-                    nuevaVentana.document.write(`
-                        <html>
-                            <head><title>Devocional - Mantén presionada la imagen para guardar</title></head>
-                            <body style="margin:0; background:#333; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;">
-                                <p style="color:white; font-family:sans-serif; font-size:14px; text-align:center; padding:10px;">💡 Mantén presionada la imagen para guardarla en tu galería</p>
-                                <img src="${dataUrl}" style="max-width:100%; height:auto; box-shadow:0 4px 15px rgba(0,0,0,0.5);" />
-                            </body>
-                        </html>
-                    `);
-                } else {
-                    // Fallback directo si el navegador bloquea la nueva ventana
-                    const link = document.createElement('a');
-                    link.download = `Devocional_${document.getElementById('input-libro').value}_${document.getElementById('input-capitulo').value}.png`;
-                    link.href = dataUrl;
-                    link.click();
-                }
+                const link = document.createElement('a');
+                link.download = `Devocional_${document.getElementById('input-libro').value}_${document.getElementById('input-capitulo').value}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
             }).catch(err => {
                 console.error("Error al generar imagen:", err);
-                alert("No se pudo generar la imagen.");
             });
         }
 
