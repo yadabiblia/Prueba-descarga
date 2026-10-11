@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- html2canvas for generating images -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <!-- html2pdf.js for generating PDFs -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Google Fonts -->
@@ -501,7 +503,7 @@
                 </div>
             </div>
 
-            <!-- TARJETA BANNER INFORMATIVA CON BOTÓN DE DESCARGA PDF DIRECTO -->
+            <!-- TARJETA BANNER INFORMATIVA CON BOTONES DE DESCARGA (PDF E IMAGEN) -->
             <div id="banner-devocional" class="tema-card p-6 rounded-2xl border shadow-sm space-y-4">
                 <div class="flex items-start gap-3">
                     <div class="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
@@ -522,6 +524,9 @@
                     </button>
                     <button type="button" onclick="downloadPDF()" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center gap-1.5 shadow transition">
                         <i data-lucide="file-text" class="w-4 h-4"></i> Descargar PDF
+                    </button>
+                    <button type="button" onclick="downloadImage()" class="px-4 py-2 text-xs font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl flex items-center gap-1.5 shadow transition">
+                        <i data-lucide="image" class="w-4 h-4"></i> Descargar Imagen
                     </button>
                 </div>
             </div>
@@ -609,6 +614,7 @@
                     <div class="space-x-2 flex flex-wrap gap-2">
                         <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 text-white rounded-lg">Imprimir</button>
                         <button onclick="downloadPDF()" class="px-3.5 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded-lg">Descargar PDF</button>
+                        <button onclick="downloadImage()" class="px-3.5 py-1.5 text-xs font-semibold bg-purple-600 text-white rounded-lg">Descargar Imagen</button>
                     </div>
                 </div>
 
@@ -737,7 +743,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGICA UNIFICADA Y PDF DIRECTO -->
+    <!-- SCRIPT LOGICA UNIFICADA Y DESCARGA DE IMAGEN CORREGIDA -->
     <script>
         const LIBROS_BIBLIA = [
           { id: 'GEN', nombre: 'Génesis', testamento: 'AT', archivo: 'Genesis.txt', caps: 50 },
@@ -1261,7 +1267,7 @@
           document.getElementById('modalAvances').classList.remove('oculto');
         }
 
-        /* --- DEVOCIONAL Y PDF --- */
+        /* --- DEVOCIONAL, PDF Y DESCARGA DE IMAGEN SEGURO --- */
         function addKeyWordRow(word = '', meaning = '') {
             keyWordCount++;
             const container = document.getElementById('keywords-container');
@@ -1329,6 +1335,48 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
             };
             html2pdf().set(opt).from(element).save();
+        }
+
+        async function downloadImage() {
+            updatePreviewDocument();
+            const element = document.getElementById('doc-page-1');
+            
+            if (typeof html2canvas === 'undefined') {
+                alert('Cargando módulo de imagen, por favor intenta de nuevo en unos segundos.');
+                return;
+            }
+
+            try {
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    useCORS: true, 
+                    backgroundColor: '#FFFFFF' 
+                });
+                
+                const nombreArchivo = `Devocional_${document.getElementById('input-libro').value || 'Biblia'}_${document.getElementById('input-capitulo').value || '1'}.png`;
+                
+                canvas.toBlob((blob) => {
+                    if (!blob) {
+                        alert('No se pudo generar el archivo de imagen.');
+                        return;
+                    }
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = nombreArchivo;
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 200);
+                }, 'image/png');
+
+            } catch (err) {
+                console.error("Error al generar la imagen:", err);
+                alert("No se pudo generar la imagen.");
+            }
         }
 
         function limpiarFormulario() {
