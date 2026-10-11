@@ -501,7 +501,7 @@
                 </div>
             </div>
 
-            <!-- TARJETA BANNER INFORMATIVA -->
+            <!-- TARJETA BANNER INFORMATIVA CON BOTÓN DE DESCARGA PDF DIRECTO -->
             <div id="banner-devocional" class="tema-card p-6 rounded-2xl border shadow-sm space-y-4">
                 <div class="flex items-start gap-3">
                     <div class="p-2 bg-blue-500/10 text-blue-600 rounded-lg">
@@ -517,8 +517,11 @@
                     <button type="button" onclick="limpiarFormulario()" class="px-4 py-2 text-xs font-medium bg-red-500/10 text-red-600 hover:bg-red-500/20 rounded-xl flex items-center gap-1.5 transition">
                         <i data-lucide="trash-2" class="w-4 h-4"></i> Limpiar
                     </button>
-                    <button type="button" onclick="saveReport()" class="px-5 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-1.5 shadow transition">
+                    <button type="button" onclick="saveReport()" class="px-4 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center gap-1.5 shadow transition">
                         <i data-lucide="save" class="w-4 h-4"></i> Guardar Reporte
+                    </button>
+                    <button type="button" onclick="downloadPDF()" class="px-4 py-2 text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl flex items-center gap-1.5 shadow transition">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> Descargar PDF
                     </button>
                 </div>
             </div>
@@ -602,10 +605,10 @@
             <!-- TAB 2: VISTA PREVIA PDF -->
             <section id="view-preview" class="hidden space-y-6">
                 <div class="tema-card p-4 rounded-xl shadow-sm border flex justify-between items-center no-print">
-                    <span class="text-xs tema-texto-sub">Documento adaptado dinámicamente según el contenido</span>
-                    <div class="space-x-2">
+                    <span class="text-xs tema-texto-sub">Opciones de descarga del documento</span>
+                    <div class="space-x-2 flex flex-wrap gap-2">
                         <button onclick="window.print()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 text-white rounded-lg">Imprimir</button>
-                        <button onclick="downloadPDF()" class="px-4 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded-lg">Descargar PDF</button>
+                        <button onclick="downloadPDF()" class="px-3.5 py-1.5 text-xs font-semibold bg-blue-600 text-white rounded-lg">Descargar PDF</button>
                     </div>
                 </div>
 
@@ -734,7 +737,7 @@
         </div>
     </div>
 
-    <!-- SCRIPT LOGICA UNIFICADA Y AISLADA POR USUARIO -->
+    <!-- SCRIPT LOGICA UNIFICADA Y PDF DIRECTO -->
     <script>
         const LIBROS_BIBLIA = [
           { id: 'GEN', nombre: 'Génesis', testamento: 'AT', archivo: 'Genesis.txt', caps: 50 },
@@ -1134,7 +1137,7 @@
           if (menu) menu.classList.remove('activo');
         }
 
-        /* --- CONTROL DE USUARIOS Y SESIÓN CORREGIDO --- */
+        /* --- CONTROL DE USUARIOS Y SESIÓN --- */
         function actualizarEtiquetasUsuario() {
           const texto = usuarioActual !== "Invitado" ? usuarioActual : 'Inicio de sesión';
           document.querySelectorAll('.lblUsuarioMenu').forEach(el => el.innerText = texto);
@@ -1258,7 +1261,7 @@
           document.getElementById('modalAvances').classList.remove('oculto');
         }
 
-        /* --- DEVOCIONAL Y PDF AISLADOS POR USUARIO --- */
+        /* --- DEVOCIONAL Y PDF --- */
         function addKeyWordRow(word = '', meaning = '') {
             keyWordCount++;
             const container = document.getElementById('keywords-container');
