@@ -8,9 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- html2canvas for generating images -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- html2pdf.js for generating PDFs -->
+    <!-- html2pdf.js for generating PDFs & html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1339,20 +1337,14 @@
 
         function downloadImage() {
             updatePreviewDocument();
-            const element = document.getElementById('doc-page-1');
+            const element = document.getElementById('pdf-container');
             
-            if (typeof html2canvas === 'undefined') {
-                alert('La librería para generar imágenes no se ha cargado completamente.');
-                return;
-            }
-
+            // Usamos html2canvas (incluido en la librería html2pdf) para generar la imagen PNG
             html2canvas(element, { scale: 2, useCORS: true }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `Devocional_${document.getElementById('input-libro').value}_${document.getElementById('input-capitulo').value}.png`;
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-            }).catch(err => {
-                console.error("Error al generar imagen:", err);
             });
         }
 
